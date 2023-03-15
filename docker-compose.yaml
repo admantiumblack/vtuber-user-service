@@ -5,8 +5,6 @@ services:
         restart: always
         env_file:
             - .env
-        env_file:
-            - .env.example
         environment:
             - LOAD_EX: n
             - EXECUTOR: Local
