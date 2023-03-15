@@ -1,0 +1,50 @@
+version: '3.7'
+services:
+    database:
+        image: mariadb:10.4.21
+        # volumes: 
+        #     - ../database_dump:/docker-entrypoint-initdb.d/
+        environment:
+            MARIADB_ROOT_PASSWORD: password
+            MARIADB_DATABASE: hololive_twitter
+        ports:
+            - 3306:3306
+
+    object_storage:
+        image: bitnami/minio:latest
+        ports:
+            - '9000:9000'
+            - '9001:9001'
+        environment:
+            - MINIO_ROOT_USER: minio-root-user
+            - MINIO_ROOT_PASSWORD: minio-root-password
+
+    webserver:
+        image: puckel/docker-airflow:1.10.9
+        restart: always
+        depends_on:
+            - database
+            - minio
+        env_file:
+            - .env.example
+        environment:
+            - LOAD_EX: n
+            - EXECUTOR: Local
+        logging:
+            options:
+                max-size: 10m
+                max-file: "3"
+        volumes:
+            - ./dags:/usr/local/airflow/dags
+            - ./logs:/opt/airflow/logs
+        ports:
+            - "8080:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+        links:
+            - "database:mysql"
+            - "object_storage:minio"
