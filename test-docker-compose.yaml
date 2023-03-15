@@ -5,8 +5,9 @@ services:
         # volumes: 
         #     - ../database_dump:/docker-entrypoint-initdb.d/
         environment:
-            MARIADB_ROOT_PASSWORD: password
-            MARIADB_DATABASE: hololive_twitter
+            - MARIADB_ROOT_PASSWORD=password
+            - MARIADB_USER=masbro
+            - MARIADB_PASSWORD=mantap
         ports:
             - 3306:3306
 
@@ -16,20 +17,20 @@ services:
             - '9000:9000'
             - '9001:9001'
         environment:
-            - MINIO_ROOT_USER: minio-root-user
-            - MINIO_ROOT_PASSWORD: minio-root-password
+            - MINIO_ROOT_USER=minio-root-user
+            - MINIO_ROOT_PASSWORD=minio-root-password
 
     webserver:
-        image: puckel/docker-airflow:1.10.9
+        build: .
         restart: always
         depends_on:
             - database
-            - minio
+            - object_storage
         env_file:
             - .env.example
         environment:
-            - LOAD_EX: n
-            - EXECUTOR: Local
+            - LOAD_EX=n
+            - EXECUTOR=Local
         logging:
             options:
                 max-size: 10m
