@@ -6,8 +6,8 @@ services:
         env_file:
             - .env
         environment:
-            - LOAD_EX: n
-            - EXECUTOR: Local
+            - LOAD_EX=n
+            - EXECUTOR=Local
         logging:
             options:
                 max-size: 10m
