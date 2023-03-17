@@ -1,2 +1,3 @@
 ./logs/*
+logs/dag_processor_manager
 .env
