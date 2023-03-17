@@ -1,13 +1,30 @@
 version: '3.7'
+
+x-airflow-common:
+  &airflow-common
+  build: .
+  env_file:
+        - .env.example
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+  depends_on:
+    - database
+    - object_storage
+  links:
+    - database:mysql
+    - object_storage:minio
+
 services:
     database:
-        image: mariadb:10.4.21
-        # volumes: 
-        #     - ../database_dump:/docker-entrypoint-initdb.d/
+        image: mysql:8.0.32
+        volumes: 
+            - ./database_dump:/docker-entrypoint-initdb.d/
+            # - database_volume:/var/lib/mysql
         environment:
-            - MARIADB_ROOT_PASSWORD=password
-            - MARIADB_USER=masbro
-            - MARIADB_PASSWORD=mantap
+            - MYSQL_ROOT_PASSWORD=not_admin
+            # - MYSQL_USER=masbro
+            # - MYSQL_PASSWORD=mantap
         ports:
             - 3306:3306
 
@@ -20,32 +37,32 @@ services:
             - MINIO_ROOT_USER=minio-root-user
             - MINIO_ROOT_PASSWORD=minio-root-password
 
-    etl_server:
-        build: .
-        restart: always
-        depends_on:
-            - database
-            - object_storage
-        env_file:
-            - .env.example
-        environment:
-            - LOAD_EX=n
-            - EXECUTOR=Local
-        logging:
-            options:
-                max-size: 10m
-                max-file: "3"
-        volumes:
-            - ./dags:/usr/local/airflow/dags
-            - ./logs:/opt/airflow/logs
+    airflow-init:
+        << : *airflow-common
+        container_name: airflow_init
+        entrypoint: /bin/bash
+        command:
+        - -c
+        - airflow users list || ( airflow db init &&
+            airflow users create
+            --role Admin
+            --username airflow
+            --password airflow
+            --email airflow@airflow.com
+            --firstname airflow
+            --lastname airflow )
+        restart: on-failure
+
+    airflow-webserver:
+        << : *airflow-common
+        command: airflow webserver
         ports:
-            - "8080:8080"
-        command: webserver
-        healthcheck:
-            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-            interval: 30s
-            timeout: 30s
-            retries: 3
-        links:
-            - "database:mysql"
-            - "object_storage:minio"
+        - 8080:8080
+        container_name: airflow_webserver
+        restart: always
+
+    airflow-scheduler:
+        << : *airflow-common
+        command: airflow scheduler
+        container_name: airflow_scheduler
+        restart: always
