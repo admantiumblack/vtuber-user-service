@@ -4,7 +4,7 @@ x-airflow-common:
   &airflow-common
   build: .
   env_file:
-        - .env.example
+    - .env.example
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
@@ -57,22 +57,23 @@ services:
         container_name: airflow_init
         entrypoint: /bin/bash
         command:
-        - -c
-        - airflow users list || ( airflow db init &&
-            airflow users create
-            --role Admin
-            --username airflow
-            --password airflow
-            --email airflow@airflow.com
-            --firstname airflow
-            --lastname airflow )
+            - -c
+            - airflow db init
+            - airflow db upgrade
+            - airflow users list || airflow users create\
+                --role Admin\
+                --username airflow\
+                --password airflow\
+                --email airflow@airflow.com\
+                --firstname airflow\
+                --lastname airflow
         restart: on-failure
 
     airflow-webserver:
         << : *airflow-common
         command: airflow webserver
         ports:
-        - 8080:8080
+            - 8080:8080
         container_name: airflow_webserver
         restart: always
 
