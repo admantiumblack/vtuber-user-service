@@ -3,3 +3,4 @@ logs/dag_processor_manager
 .env
 *.log
 logs/dag_processor_manager/dag_processor_manager.log
+logs/scheduler/latest
