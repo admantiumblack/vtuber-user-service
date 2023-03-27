@@ -1,2 +1,8 @@
-minio==7.1.13
+fastapi==0.70.0
+pydantic==1.8.2
+pytz==2021.3
+SQLAlchemy==1.4.22
+uvicorn==0.15.0
 PyMySQL==1.0.2
+requests
+cryptography

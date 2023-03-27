@@ -1,6 +1,2 @@
-./logs/*
-logs/dag_processor_manager
+*.pyc
 .env
-*.log
-logs/dag_processor_manager/dag_processor_manager.log
-logs/scheduler/latest
