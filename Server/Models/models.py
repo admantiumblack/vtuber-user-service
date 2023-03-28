@@ -37,7 +37,7 @@ class Vtuber(BaseDatabaseModel):
         
         if offset:
             query = query.offset(offset)
-        
+        print(query)
         return query
         
 
