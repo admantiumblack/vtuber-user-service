@@ -9,6 +9,7 @@ class GetUserSchema(BaseModel):
     offset: int = 0
     company: str = None
     platform: str = None
+    include:str = 'details'
 
 class PlatformSchema(BaseModel):
     platform_name:str = None
@@ -38,6 +39,7 @@ class UserSchema(BaseModel):
     vtuber_name:str = None
     channel:List[ChannelSchema] = None
     companies:List[VtuberCompanySchema] = None
+    details:dict = None
 
     class Config:
         orm_mode=True
