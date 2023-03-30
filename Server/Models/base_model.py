@@ -7,8 +7,13 @@ class BaseDatabaseModel(Base):
     __abstract__ = True
 
     @classmethod
-    def get(cls, db, **kwargs):
+    def get(cls, db, limit = None, offset = None, **kwargs):
         query = db.query(cls).filter_by(**kwargs)
+        if limit:
+            query = query.limit(limit)
+        
+        if offset:
+            query = query.offset(offset)
         return query
 
 class DateTimeModel(BaseDatabaseModel):

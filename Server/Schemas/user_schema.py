@@ -11,6 +11,11 @@ class GetUserSchema(BaseModel):
     platform: str = None
     include:str = 'details'
 
+class GetCompanySchema(BaseModel):
+    company_name:str = None
+    limit:int = 5
+    offset:int = 0
+
 class PlatformSchema(BaseModel):
     platform_name:str = None
     class Config:
