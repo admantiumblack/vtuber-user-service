@@ -20,16 +20,15 @@ class Vtuber(BaseDatabaseModel):
     )
 
     @classmethod
-    def get_vtuber(cls, db, limit=5, offset=0, **params):
-        query_params = {i:params[i] for i in cls.__table__.columns if i in params}
-        query = db.query(Vtuber).filter_by(**query_params)
+    def get_vtuber(cls, db, limit=5, offset=0, company=None, platform=None, **params):
+        query = db.query(Vtuber).filter_by(**params)
 
-        if 'company' in params:
-            company_id = Company.get(db, company_name=params['company']).first().company_id
+        if company:
+            company_id = Company.get(db, company_name=company).first().company_id
             query = query.filter(Vtuber.companies.any(company_id=company_id))
     
-        if 'platform' in params:
-            platform_id = StreamPlatform.get(db, platform_name=params['platform']).first().platform_id
+        if platform:
+            platform_id = StreamPlatform.get(db, platform).first().platform_id
             query = query.filter(Vtuber.channel.any(platform_id=platform_id))
 
         if limit:
